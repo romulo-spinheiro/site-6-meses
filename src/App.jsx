@@ -11,8 +11,7 @@ const INITIAL_DATA = {
     "/fotos/Capa4.jpeg"
   ],
   middle: [
-    "/fotos/meio1.jpeg",
-    "/fotos/meio2.jpeg"
+    "/fotos/meio2.jpeg",
   ],
   future: "/fotos/grande1.jpeg",
   gallery: [
@@ -299,7 +298,7 @@ export default function App() {
           </h2>
           
           <p style={{ fontSize: '1.25rem', color: '#9CA3AF', fontWeight: 300 }}>
-            "Há 6 meses eu estou apaixonado por você e vivendo o melhor da vida ao teu lado. Obrigado por partilhar tudo isso e ir além dos momentos bons."
+            "Há 6 meses eu estou apaixonado por você e vivendo o melhor da vida ao teu lado. Obrigado por partilhar tudo isso todos os dias."
           </p>
 
           <motion.div 
