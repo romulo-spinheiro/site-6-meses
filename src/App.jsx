@@ -68,7 +68,7 @@ const Typewriter = ({ words, className, cursorColor = "black" }) => {
   );
 };
 
-const PhotoCard = ({ src, alt, style = {} }) => (
+const PhotoCard = ({ src, alt, style = {}, imgStyle = {} }) => (
   <motion.div 
     className="photo-card"
     style={{ 
@@ -83,7 +83,17 @@ const PhotoCard = ({ src, alt, style = {} }) => (
     whileHover={{ scale: 1.02 }}
     transition={{ duration: 0.4 }}
   >
-    <img src={src} alt={alt} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    <img 
+      src={src} 
+      alt={alt} 
+      style={{ 
+        width: '100%', 
+        height: '100%', 
+        objectFit: 'cover',
+        objectPosition: 'top center', // Prioriza mostrar o rosto (parte de cima)
+        ...imgStyle 
+      }} 
+    />
   </motion.div>
 );
 
@@ -207,7 +217,8 @@ export default function App() {
                       key={index}
                       src={src}
                       alt={`Momentos ${index + 1}`} 
-                      style={{ width: '70vw', height: '300px', maxWidth: '400px', maxHeight: '400px' }}
+                      // AJUSTE: Altura aumentada para 450px para caber fotos verticais (selfies)
+                      style={{ width: '70vw', height: '450px', maxWidth: '400px', maxHeight: '550px' }}
                     />
                   ))}
                </div>
