@@ -1,39 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Camera, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { Heart, Camera, X, Upload } from 'lucide-react';
 
-// --- DADOS PADRÃO (Placeholders) ---
+// --- CONFIGURAÇÃO CORRIGIDA DAS FOTOS ---
+// Importante: As fotos devem estar na pasta "public/fotos" do seu projeto.
 const INITIAL_DATA = {
   hero: [
-    src="/fotos/Capa1.jpeg",
-    src="/fotos/Capa2.jpeg",
-    src="/fotos/Capa3.jpeg",
-    src="/fotos/Capa4.jpeg"
+    "/fotos/Capa1.jpeg",
+    "/fotos/Capa2.jpeg",
+    "/fotos/Capa3.jpeg",
+    "/fotos/Capa4.jpeg"
   ],
   middle: [
-    src="/fotos/meio1.jpeg",
-    src="/fotos/meio2.jpeg"
+    "/fotos/meio1.jpeg",
+    "/fotos/meio2.jpeg"
   ],
   future: "/fotos/grande1.jpeg",
   gallery: [
-   src="/fotos/final1.jpeg",
-   src="/fotos/final2.jpeg",
-   src="/fotos/final3.jpeg",
-   src="/fotos/final4.jpeg",
-   src="/fotos/final5.jpeg",
-   src="/fotos/final6.jpeg",
-   src="/fotos/final7.jpeg",
-   src="/fotos/final8.jpeg",
-   src="/fotos/final9.jpeg",
-   src="/fotos/final10.jpeg",
-   src="/fotos/final11.jpeg",
-   src="/fotos/final12.jpeg"
+    "/fotos/final1.jpeg",
+    "/fotos/final2.jpeg",
+    "/fotos/final3.jpeg",
+    "/fotos/final4.jpeg",
+    "/fotos/final5.jpeg",
+    "/fotos/final6.jpeg",
+    "/fotos/final7.jpeg",
+    "/fotos/final8.jpeg",
+    "/fotos/final9.jpeg",
+    "/fotos/final10.jpeg",
+    "/fotos/final11.jpeg",
+    "/fotos/final12.jpeg"
   ]
 };
 
 // --- COMPONENTES AUXILIARES ---
 
-// Typewriter Effect
+// Efeito de Máquina de Escrever
 const Typewriter = ({ words, className, cursorColor = "text-black" }) => {
   const [index, setIndex] = useState(0);
   const [subIndex, setSubIndex] = useState(0);
@@ -69,7 +70,7 @@ const Typewriter = ({ words, className, cursorColor = "text-black" }) => {
   );
 };
 
-// Photo Card Component
+// Card de Foto
 const PhotoCard = ({ src, alt, className = "" }) => (
   <motion.div 
     className={`relative flex-shrink-0 overflow-hidden rounded-3xl bg-gray-100 shadow-sm ${className}`}
@@ -80,7 +81,7 @@ const PhotoCard = ({ src, alt, className = "" }) => (
   </motion.div>
 );
 
-// Image Upload Helper
+// Uploader de Imagem (Para testes locais)
 const ImageUploader = ({ label, currentImages, onUpload, isMultiple = true }) => {
   const fileInputRef = useRef(null);
 
@@ -145,7 +146,7 @@ const ImageUploader = ({ label, currentImages, onUpload, isMultiple = true }) =>
   );
 };
 
-// Settings Modal
+// Modal de Configurações
 const SettingsModal = ({ isOpen, onClose, images, setImages }) => {
   if (!isOpen) return null;
 
@@ -168,7 +169,7 @@ const SettingsModal = ({ isOpen, onClose, images, setImages }) => {
         
         <div className="p-6">
           <p className="text-sm text-gray-500 mb-6 bg-blue-50 p-3 rounded-lg border border-blue-100">
-             Faça upload das suas fotos para visualizar como o site ficará. As fotos ficam salvas apenas no seu navegador agora.
+             Dica: Para o site final, coloque as fotos na pasta "public" e edite o código. Esta ferramenta é apenas para visualização temporária.
           </p>
 
           <ImageUploader 
@@ -214,7 +215,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] font-sans selection:bg-blue-100">
       
-      {/* Settings Trigger */}
+      {/* Botão Flutuante de Configuração */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
