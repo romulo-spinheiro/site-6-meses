@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Lock, CheckCircle, Circle, ChevronDown, Plane } from 'lucide-react';
+import { Heart, Lock, CheckCircle, Circle, ChevronDown, Plane, Plus, Check } from 'lucide-react';
 
 // --- SUAS FOTOS AQUI ---
 const INITIAL_DATA = {
@@ -173,11 +173,31 @@ const PasswordModal = ({ isOpen, onClose, onSuccess, requiredPassword, hint }) =
 export default function App() {
   const images = INITIAL_DATA;
   
+  // Estados de Senhas
   const [isDateUnlocked, setIsDateUnlocked] = useState(false);
   const [isWeddingDateUnlocked, setIsWeddingDateUnlocked] = useState(false); 
   const [isFutureUnlocked, setIsFutureUnlocked] = useState(false);
-  const [isHoneymoonOpen, setIsHoneymoonOpen] = useState(false); // Novo estado para Lua de Mel
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
+
+  // Estados de Lua de Mel
+  const [isHoneymoonOpen, setIsHoneymoonOpen] = useState(false);
+  const [honeymoonOptions, setHoneymoonOptions] = useState(() => {
+    const saved = localStorage.getItem('honeymoonOptions');
+    return saved ? JSON.parse(saved) : ['África', 'Europa', 'Disney', 'Ásia'];
+  });
+  const [selectedHoneymoon, setSelectedHoneymoon] = useState(() => {
+    return localStorage.getItem('selectedHoneymoon') || '';
+  });
+  const [newHoneymoonInput, setNewHoneymoonInput] = useState('');
+
+  // Persistir dados da lua de mel
+  useEffect(() => {
+    localStorage.setItem('honeymoonOptions', JSON.stringify(honeymoonOptions));
+  }, [honeymoonOptions]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedHoneymoon', selectedHoneymoon);
+  }, [selectedHoneymoon]);
 
   const openModal = (type) => {
     setModalConfig({ isOpen: true, type });
@@ -193,6 +213,19 @@ export default function App() {
       if (type === 'future') return 'quercasarcomigo?';
       return 'euteamomuitomeuamor';
   }
+
+  const handleAddHoneymoon = () => {
+    if (newHoneymoonInput.trim()) {
+      const newOption = newHoneymoonInput.trim();
+      if (!honeymoonOptions.includes(newOption)) {
+        setHoneymoonOptions([...honeymoonOptions, newOption]);
+        setSelectedHoneymoon(newOption); // Seleciona automaticamente o novo
+      } else {
+        setSelectedHoneymoon(newOption);
+      }
+      setNewHoneymoonInput('');
+    }
+  };
 
   return (
     <div style={{ backgroundColor: '#F5F5F7', color: '#1D1D1F', minHeight: '100vh', fontFamily: '-apple-system, sans-serif', overflowX: 'hidden' }}>
@@ -210,6 +243,8 @@ export default function App() {
         .blur-content { filter: blur(6px); user-select: none; transition: filter 0.3s; cursor: pointer; }
         .blur-content:hover { filter: blur(4px); }
         .unblur { filter: none !important; cursor: default; }
+        .honeymoon-option { cursor: pointer; transition: background 0.2s; border-radius: 8px; }
+        .honeymoon-option:hover { background-color: #F9FAFB; }
         
         @media (min-width: 768px) {
           h1 { font-size: 4.5rem !important; }
@@ -582,7 +617,7 @@ export default function App() {
                     )}
                   </div>
                   
-                  {/* Opções da Lua de Mel */}
+                  {/* Opções da Lua de Mel com Seleção */}
                   {isHoneymoon && (
                     <AnimatePresence>
                       {isHoneymoonOpen && (
@@ -593,9 +628,30 @@ export default function App() {
                           style={{ overflow: 'hidden', marginTop: '10px' }}
                         >
                           <ul style={{ listStyle: 'none', padding: 0 }}>
-                            {['África', 'Europa', 'Disney', 'Ásia'].map(opt => (
-                              <li key={opt} style={{ padding: '8px 0', borderBottom: '1px solid #F3F4F6', color: '#4B5563', fontSize: '0.95rem' }}>
-                                <Circle size={8} style={{ display: 'inline-block', marginRight: '8px', color: '#D1D5DB' }} fill="currentColor" />
+                            {honeymoonOptions.map(opt => (
+                              <li 
+                                key={opt} 
+                                className="honeymoon-option"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedHoneymoon(opt);
+                                }}
+                                style={{ 
+                                  padding: '12px 10px', 
+                                  borderBottom: '1px solid #F3F4F6', 
+                                  color: selectedHoneymoon === opt ? '#2563EB' : '#4B5563', 
+                                  fontSize: '0.95rem',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  backgroundColor: selectedHoneymoon === opt ? '#EFF6FF' : 'transparent',
+                                  borderRadius: '8px'
+                                }}
+                              >
+                                {selectedHoneymoon === opt ? (
+                                  <CheckCircle size={16} style={{ display: 'inline-block', marginRight: '10px', color: '#2563EB' }} fill="#DBEAFE" />
+                                ) : (
+                                  <Circle size={16} style={{ display: 'inline-block', marginRight: '10px', color: '#D1D5DB' }} />
+                                )}
                                 {opt}
                               </li>
                             ))}
@@ -603,7 +659,12 @@ export default function App() {
                               <span style={{ marginRight: '8px', whiteSpace: 'nowrap' }}>Outro lugar:</span>
                               <input 
                                 type="text" 
-                                placeholder="Escreva aqui..." 
+                                value={newHoneymoonInput}
+                                onChange={(e) => setNewHoneymoonInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleAddHoneymoon();
+                                }}
+                                placeholder="Escreva e dê enter..." 
                                 style={{ 
                                   border: 'none', 
                                   borderBottom: '1px solid #D1D5DB', 
@@ -616,6 +677,27 @@ export default function App() {
                                 }} 
                                 onClick={(e) => e.stopPropagation()} 
                               />
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddHoneymoon();
+                                }}
+                                style={{
+                                  marginLeft: '8px',
+                                  background: '#2563EB',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '50%',
+                                  width: '24px',
+                                  height: '24px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <Plus size={14} />
+                              </button>
                             </li>
                           </ul>
                         </motion.div>
