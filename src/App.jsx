@@ -409,8 +409,8 @@ export default function App() {
       {/* --- NOVA SEÇÃO: PLANEJAMENTO DO NOIVADO --- */}
       <section style={{ padding: '60px 20px', maxWidth: '800px', margin: '0 auto' }}>
         <div style={{ marginBottom: '40px', textAlign: 'left' }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>Tracking do Noivado 💍</h2>
-          <p style={{ color: '#6B7280' }}>Acompanhe o status do nosso próximo grande passo.</p>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>Pedido de Noivado 💍</h2>
+          <p style={{ color: '#6B7280' }}>É hora de acompanhar o status do nosso próximo grande passo.</p>
         </div>
 
         <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
@@ -459,7 +459,7 @@ export default function App() {
           </div>
 
           {/* Items Normais */}
-          {['Descobrir o aro', 'Experimentar a aliança', 'Planejar o pedido'].map((item, i) => (
+          {['Descobrir o aro do anel', 'Experimentar a aliança', 'Planejar o pedido'].map((item, i) => (
             <div className="timeline-item" key={i}>
               <div className="timeline-line"></div>
               <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
