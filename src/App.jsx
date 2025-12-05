@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Lock, CheckCircle, Circle } from 'lucide-react';
+import { Heart, Lock, CheckCircle, Circle, ChevronDown, Plane } from 'lucide-react';
 
 // --- SUAS FOTOS AQUI ---
 const INITIAL_DATA = {
@@ -176,6 +176,7 @@ export default function App() {
   const [isDateUnlocked, setIsDateUnlocked] = useState(false);
   const [isWeddingDateUnlocked, setIsWeddingDateUnlocked] = useState(false); 
   const [isFutureUnlocked, setIsFutureUnlocked] = useState(false);
+  const [isHoneymoonOpen, setIsHoneymoonOpen] = useState(false); // Novo estado para Lua de Mel
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
 
   const openModal = (type) => {
@@ -190,7 +191,7 @@ export default function App() {
 
   const getPassword = (type) => {
       if (type === 'future') return 'quercasarcomigo?';
-      return 'euteamomuitommeuamor';
+      return 'euteamomuitomeuamor';
   }
 
   return (
@@ -552,18 +553,79 @@ export default function App() {
             </div>
           </div>
 
-          {/* Itens do Casamento (Cadeado, sem blur) */}
-          {['Casamento Civil', 'Casamento Religioso', 'Casamento fora do país', 'Lua de Mel', 'Apartamento e coisas de casa'].map((item, i, arr) => (
-            <div className="timeline-item" key={i}>
-              <div className="timeline-line" style={{ display: i === arr.length - 1 ? 'none' : 'block' }}></div>
-              <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
-                <Lock size={24} style={{ color: '#9CA3AF' }} />
+          {/* Itens do Casamento (Cadeado, sem blur, exceto Lua de Mel que expande) */}
+          {['Casamento Civil', 'Casamento Religioso', 'Casamento fora do país', 'Lua de Mel', 'Apartamento e coisas de casa'].map((item, i, arr) => {
+            const isHoneymoon = item === 'Lua de Mel';
+            return (
+              <div 
+                className="timeline-item" 
+                key={i} 
+                onClick={() => isHoneymoon ? setIsHoneymoonOpen(!isHoneymoonOpen) : null}
+                style={{ cursor: isHoneymoon ? 'pointer' : 'default' }}
+              >
+                <div className="timeline-line" style={{ display: i === arr.length - 1 ? 'none' : 'block' }}></div>
+                <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+                  {isHoneymoon ? <Plane size={24} style={{ color: '#9CA3AF' }} /> : <Lock size={24} style={{ color: '#9CA3AF' }} />}
+                </div>
+                <div style={{ marginLeft: '16px', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '10px' }}>
+                    <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>{item}</p>
+                    {isHoneymoon && (
+                      <ChevronDown 
+                        size={20} 
+                        style={{ 
+                          color: '#6B7280', 
+                          transform: isHoneymoonOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.3s'
+                        }} 
+                      />
+                    )}
+                  </div>
+                  
+                  {/* Opções da Lua de Mel */}
+                  {isHoneymoon && (
+                    <AnimatePresence>
+                      {isHoneymoonOpen && (
+                        <motion.div 
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          style={{ overflow: 'hidden', marginTop: '10px' }}
+                        >
+                          <ul style={{ listStyle: 'none', padding: 0 }}>
+                            {['África', 'Europa', 'Disney', 'Ásia'].map(opt => (
+                              <li key={opt} style={{ padding: '8px 0', borderBottom: '1px solid #F3F4F6', color: '#4B5563', fontSize: '0.95rem' }}>
+                                <Circle size={8} style={{ display: 'inline-block', marginRight: '8px', color: '#D1D5DB' }} fill="currentColor" />
+                                {opt}
+                              </li>
+                            ))}
+                            <li style={{ padding: '12px 0 4px', color: '#4B5563', fontSize: '0.95rem', display: 'flex', alignItems: 'center' }}>
+                              <span style={{ marginRight: '8px', whiteSpace: 'nowrap' }}>Outro lugar:</span>
+                              <input 
+                                type="text" 
+                                placeholder="Escreva aqui..." 
+                                style={{ 
+                                  border: 'none', 
+                                  borderBottom: '1px solid #D1D5DB', 
+                                  outline: 'none', 
+                                  background: 'transparent', 
+                                  width: '100%',
+                                  padding: '4px 0',
+                                  fontSize: '0.95rem',
+                                  color: '#1F2937'
+                                }} 
+                                onClick={(e) => e.stopPropagation()} 
+                              />
+                            </li>
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  )}
+                </div>
               </div>
-              <div style={{ marginLeft: '16px' }}>
-                <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>{item}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
         </div>
 
