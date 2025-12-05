@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Lock, CheckCircle, Circle } from 'lucide-react';
 
 // --- SUAS FOTOS AQUI ---
 const INITIAL_DATA = {
@@ -11,7 +11,8 @@ const INITIAL_DATA = {
     "/fotos/Capa4.jpeg"
   ],
   middle: [
-    "/fotos/meio2.jpeg",
+    "/fotos/meio1.jpeg",
+    "/fotos/meio2.jpeg"
   ],
   future: "/fotos/grande1.jpeg",
   gallery: [
@@ -89,19 +90,105 @@ const PhotoCard = ({ src, alt, style = {}, imgStyle = {} }) => (
         width: '100%', 
         height: '100%', 
         objectFit: 'cover',
-        objectPosition: 'top center', // Prioriza mostrar o rosto (parte de cima)
+        objectPosition: 'top center',
         ...imgStyle 
       }} 
     />
   </motion.div>
 );
 
+// Modal de Senha
+const PasswordModal = ({ isOpen, onClose, onSuccess, requiredPassword, hint }) => {
+  const [input, setInput] = useState('');
+  const [error, setError] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const cleanInput = input.trim().toLowerCase().replace(/\s/g, '');
+    const cleanPassword = requiredPassword.trim().toLowerCase().replace(/\s/g, '');
+
+    if (cleanInput === cleanPassword) {
+      onSuccess();
+      onClose();
+      setInput('');
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', width: '100%', maxWidth: '350px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+      >
+        <Lock size={32} style={{ color: '#6B7280', margin: '0 auto 16px' }} />
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '8px' }}>Conteúdo Protegido</h3>
+        <p style={{ fontSize: '0.9rem', color: '#6B7280', marginBottom: '20px' }}>{hint || "Digite a senha para visualizar."}</p>
+        
+        <form onSubmit={handleSubmit}>
+          <input 
+            type="password" 
+            value={input}
+            onChange={(e) => { setInput(e.target.value); setError(false); }}
+            placeholder="Senha..."
+            autoFocus
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              borderRadius: '12px', 
+              border: `1px solid ${error ? '#EF4444' : '#E5E7EB'}`,
+              marginBottom: '10px',
+              fontSize: '1rem',
+              outline: 'none'
+            }}
+          />
+          {error && <p style={{ color: '#EF4444', fontSize: '0.8rem', marginBottom: '10px' }}>Senha incorreta. Tente novamente.</p>}
+          
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              type="button" 
+              onClick={onClose}
+              style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#F3F4F6', color: '#4B5563', fontWeight: 500, cursor: 'pointer' }}
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#2563EB', color: 'white', fontWeight: 500, cursor: 'pointer' }}
+            >
+              Desbloquear
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+};
+
 export default function App() {
   const images = INITIAL_DATA;
+  
+  const [isDateUnlocked, setIsDateUnlocked] = useState(false);
+  const [isFutureUnlocked, setIsFutureUnlocked] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
+
+  const openModal = (type) => {
+    setModalConfig({ isOpen: true, type });
+  };
+
+  const handleModalSuccess = () => {
+    if (modalConfig.type === 'date') setIsDateUnlocked(true);
+    if (modalConfig.type === 'future') setIsFutureUnlocked(true);
+  };
 
   return (
     <div style={{ backgroundColor: '#F5F5F7', color: '#1D1D1F', minHeight: '100vh', fontFamily: '-apple-system, sans-serif', overflowX: 'hidden' }}>
-      {/* CSS DE EMERGÊNCIA - Garante que funcione mesmo sem Tailwind */}
+      
       <style>{`
         body { margin: 0; background-color: #F5F5F7 !important; color: #1D1D1F !important; }
         .flex-center { display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -109,18 +196,27 @@ export default function App() {
         .carousel::-webkit-scrollbar { display: none; }
         .carousel-item { scroll-snap-align: center; }
         .text-gradient { background: linear-gradient(to right, #2563eb, #9333ea); -webkit-background-clip: text; color: transparent; background-clip: text; }
-        
-        /* Tipografia Responsiva Manual */
-        h1 { font-size: 2.5rem; line-height: 1.1; font-weight: 600; margin-bottom: 1rem; }
-        h2 { font-size: 2rem; line-height: 1.2; font-weight: 600; margin-bottom: 1rem; }
-        p { font-size: 1.125rem; line-height: 1.6; color: #6B7280; }
+        .timeline-item { display: flex; align-items: flex-start; margin-bottom: 24px; position: relative; }
+        .timeline-line { position: absolute; left: 11px; top: 28px; bottom: -24px; width: 2px; background-color: #E5E7EB; z-index: 0; }
+        .timeline-item:last-child .timeline-line { display: none; }
+        .blur-content { filter: blur(6px); user-select: none; transition: filter 0.3s; cursor: pointer; }
+        .blur-content:hover { filter: blur(4px); }
+        .unblur { filter: none !important; cursor: default; }
         
         @media (min-width: 768px) {
-          h1 { font-size: 4.5rem; }
-          h2 { font-size: 3.5rem; }
-          p { font-size: 1.5rem; }
+          h1 { font-size: 4.5rem !important; }
+          h2 { font-size: 3.5rem !important; }
+          p { font-size: 1.5rem !important; }
         }
       `}</style>
+
+      <PasswordModal 
+        isOpen={modalConfig.isOpen} 
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        onSuccess={handleModalSuccess}
+        requiredPassword={modalConfig.type === 'date' ? 'euteamomuitommeuamor' : 'quercasarcomigo?'}
+        hint={modalConfig.type === 'date' ? 'Dica: O que eu sinto por você?' : 'Dica: A pergunta mais importante...'}
+      />
 
       {/* --- Seção 1: Hero --- */}
       <section className="flex-center" style={{ padding: '60px 0', minHeight: '85vh' }}>
@@ -131,7 +227,7 @@ export default function App() {
             transition={{ duration: 1 }}
             style={{ textAlign: 'center', marginBottom: '40px' }}
           >
-            <h1>
+            <h1 style={{ fontSize: '2.5rem', lineHeight: '1.1', fontWeight: 600, marginBottom: '1rem' }}>
               Feliz 6 meses de nós,<br />
               <Typewriter 
                 words={["meu amor.", "meu trovãozinho."]} 
@@ -149,7 +245,6 @@ export default function App() {
             </motion.div>
           </motion.div>
 
-          {/* Carrossel Manual */}
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -161,7 +256,6 @@ export default function App() {
                 <PhotoCard 
                   src={src} 
                   alt={`Nós ${index + 1}`} 
-                  // Largura responsiva via inline style
                   style={{ width: '80vw', height: '55vh', maxWidth: '350px', maxHeight: '500px' }}
                 />
               </div>
@@ -174,13 +268,14 @@ export default function App() {
       </section>
 
       {/* --- Seção 2: Texto Animado --- */}
-      <section style={{ padding: '80px 0', margin: '20px' }}>
+      <section style={{ padding: '40px 0', margin: '20px' }}>
         <div style={{ backgroundColor: 'white', borderRadius: '40px', padding: '60px 20px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              style={{ fontSize: '2rem', lineHeight: '1.2', fontWeight: 600, marginBottom: '1rem' }}
             >
               Partilhar a vida com você é <br className="hidden md:block" />
               <span className="text-gradient">
@@ -197,7 +292,7 @@ export default function App() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              style={{ maxWidth: '600px', margin: '20px auto 0' }}
+              style={{ maxWidth: '600px', margin: '20px auto 0', fontSize: '1.125rem', lineHeight: '1.6', color: '#6B7280' }}
             >
               O melhor da vida é poder partilhar cada momento dela ao teu lado. Amo as nossas viagens, o teu jeito, o teu sorriso, olhar e cada detalhe que faz eu me apaixonar ainda mais.
             </motion.p>
@@ -216,7 +311,6 @@ export default function App() {
                       key={index}
                       src={src}
                       alt={`Momentos ${index + 1}`} 
-                      // AJUSTE: Altura aumentada para 450px para caber fotos verticais (selfies)
                       style={{ width: '70vw', height: '450px', maxWidth: '400px', maxHeight: '550px' }}
                     />
                   ))}
@@ -235,10 +329,10 @@ export default function App() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2>
+            <h2 style={{ fontSize: '2rem', lineHeight: '1.2', fontWeight: 600, marginBottom: '1rem' }}>
               Olhar todas as fotos mostra o quanto quero tudo isso pra vida toda.
             </h2>
-            <p>
+            <p style={{ fontSize: '1.125rem', lineHeight: '1.6', color: '#6B7280' }}>
               Planejar o futuro é bom demais. Amo as nossas conversas sobre os planos, sobre casa e tantas outras coisas. Melhor ainda, vai ser quando finalmente dar esse próximo passo.
             </p>
           </motion.div>
@@ -298,7 +392,7 @@ export default function App() {
           </h2>
           
           <p style={{ fontSize: '1.25rem', color: '#9CA3AF', fontWeight: 300 }}>
-            "Há 6 meses eu estou apaixonado por você e vivendo o melhor da vida ao teu lado. Obrigado por partilhar tudo isso todos os dias."
+            "Há 6 meses eu estou apaixonado por você e vivendo o melhor da vida ao teu lado. Obrigado por partilhar tudo isso e ir além dos momentos bons."
           </p>
 
           <motion.div 
@@ -310,6 +404,96 @@ export default function App() {
             6 Meses • E contando
           </motion.div>
         </motion.div>
+      </section>
+
+      {/* --- NOVA SEÇÃO: PLANEJAMENTO DO NOIVADO --- */}
+      <section style={{ padding: '60px 20px', maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '40px', textAlign: 'left' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>Tracking do Noivado 💍</h2>
+          <p style={{ color: '#6B7280' }}>Acompanhe o status do nosso próximo grande passo.</p>
+        </div>
+
+        <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          
+          {/* Item 1 */}
+          <div className="timeline-item">
+            <div className="timeline-line"></div>
+            <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+              <CheckCircle size={24} style={{ color: '#10B981' }} fill="#D1FAE5" />
+            </div>
+            <div style={{ marginLeft: '16px' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>Decidir dar o próximo passo</p>
+              <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>O "sim" mais fácil da vida.</p>
+            </div>
+          </div>
+
+          {/* Item 2 - Data Oculta */}
+          <div className="timeline-item">
+            <div className="timeline-line"></div>
+            <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+              <CheckCircle size={24} style={{ color: '#10B981' }} fill="#D1FAE5" />
+            </div>
+            <div style={{ marginLeft: '16px' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                Definir data 
+                <span 
+                  onClick={() => !isDateUnlocked && openModal('date')}
+                  className={isDateUnlocked ? 'unblur' : 'blur-content'}
+                  style={{ 
+                    backgroundColor: isDateUnlocked ? '#ECFDF5' : '#F3F4F6', 
+                    padding: '2px 8px', 
+                    borderRadius: '6px', 
+                    fontSize: '0.9rem',
+                    color: isDateUnlocked ? '#059669' : 'transparent',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  {isDateUnlocked ? '27/07/2027' : 'ContentHidden'}
+                  {!isDateUnlocked && <Lock size={12} style={{ color: '#9CA3AF' }} />}
+                </span>
+              </p>
+              <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>Data salva no coração.</p>
+            </div>
+          </div>
+
+          {/* Items Normais */}
+          {['Descobrir o aro', 'Experimentar a aliança', 'Planejar o pedido'].map((item, i) => (
+            <div className="timeline-item" key={i}>
+              <div className="timeline-line"></div>
+              <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+                <CheckCircle size={24} style={{ color: '#10B981' }} fill="#D1FAE5" />
+              </div>
+              <div style={{ marginLeft: '16px' }}>
+                <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>{item}</p>
+              </div>
+            </div>
+          ))}
+
+          {/* Items Futuros Ocultos */}
+          <div className="timeline-item" onClick={() => !isFutureUnlocked && openModal('future')} style={{ cursor: isFutureUnlocked ? 'default' : 'pointer' }}>
+            <div className="timeline-line"></div>
+            <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+               {isFutureUnlocked ? <Circle size={24} style={{ color: '#3B82F6' }} /> : <Lock size={24} style={{ color: '#9CA3AF' }} />}
+            </div>
+            <div style={{ marginLeft: '16px', filter: isFutureUnlocked ? 'none' : 'blur(5px)', transition: 'all 0.5s' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>Programar viagem para Itália</p>
+              <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>O cenário perfeito.</p>
+            </div>
+          </div>
+
+          <div className="timeline-item" onClick={() => !isFutureUnlocked && openModal('future')} style={{ cursor: isFutureUnlocked ? 'default' : 'pointer' }}>
+            <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+               {isFutureUnlocked ? <Circle size={24} style={{ color: '#3B82F6' }} /> : <Lock size={24} style={{ color: '#9CA3AF' }} />}
+            </div>
+            <div style={{ marginLeft: '16px', filter: isFutureUnlocked ? 'none' : 'blur(5px)', transition: 'all 0.5s' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>Fazer o pedido</p>
+              <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>O momento mais esperado.</p>
+            </div>
+          </div>
+
+        </div>
       </section>
 
     </div>
