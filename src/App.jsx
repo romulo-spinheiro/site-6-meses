@@ -174,6 +174,7 @@ export default function App() {
   const images = INITIAL_DATA;
   
   const [isDateUnlocked, setIsDateUnlocked] = useState(false);
+  const [isWeddingDateUnlocked, setIsWeddingDateUnlocked] = useState(false); 
   const [isFutureUnlocked, setIsFutureUnlocked] = useState(false);
   const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
 
@@ -183,8 +184,14 @@ export default function App() {
 
   const handleModalSuccess = () => {
     if (modalConfig.type === 'date') setIsDateUnlocked(true);
+    if (modalConfig.type === 'weddingDate') setIsWeddingDateUnlocked(true);
     if (modalConfig.type === 'future') setIsFutureUnlocked(true);
   };
+
+  const getPassword = (type) => {
+      if (type === 'future') return 'quercasarcomigo?';
+      return 'euteamomuitommeuamor';
+  }
 
   return (
     <div style={{ backgroundColor: '#F5F5F7', color: '#1D1D1F', minHeight: '100vh', fontFamily: '-apple-system, sans-serif', overflowX: 'hidden' }}>
@@ -214,8 +221,8 @@ export default function App() {
         isOpen={modalConfig.isOpen} 
         onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
         onSuccess={handleModalSuccess}
-        requiredPassword={modalConfig.type === 'date' ? 'euteamomuitommeuamor' : 'quercasarcomigo?'}
-        hint={modalConfig.type === 'date' ? 'Dica: O que eu sinto por você?' : 'Dica: A pergunta mais importante...'}
+        requiredPassword={getPassword(modalConfig.type)}
+        hint={modalConfig.type === 'future' ? 'Dica: A pergunta mais importante...' : 'Dica: O que eu sinto por você?'}
       />
 
       {/* --- Seção 1: Hero --- */}
@@ -406,14 +413,16 @@ export default function App() {
         </motion.div>
       </section>
 
-      {/* --- NOVA SEÇÃO: PLANEJAMENTO DO NOIVADO --- */}
+      {/* --- NOVA SEÇÃO: TRACKING DO NOIVADO E CASAMENTO --- */}
       <section style={{ padding: '60px 20px', maxWidth: '800px', margin: '0 auto' }}>
+        
+        {/* --- Bloco 1: Noivado --- */}
         <div style={{ marginBottom: '40px', textAlign: 'left' }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>Pedido de Noivado 💍</h2>
-          <p style={{ color: '#6B7280' }}>É hora de acompanhar o status do nosso próximo grande passo.</p>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>Tracking do Noivado 💍</h2>
+          <p style={{ color: '#6B7280' }}>Acompanhe o status do nosso próximo grande passo.</p>
         </div>
 
-        <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+        <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '40px' }}>
           
           {/* Item 1 */}
           <div className="timeline-item">
@@ -459,7 +468,7 @@ export default function App() {
           </div>
 
           {/* Items Normais */}
-          {['Descobrir o aro do anel', 'Experimentar a aliança', 'Planejar o pedido'].map((item, i) => (
+          {['Descobrir o aro', 'Experimentar a aliança', 'Planejar o pedido'].map((item, i) => (
             <div className="timeline-item" key={i}>
               <div className="timeline-line"></div>
               <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
@@ -470,6 +479,17 @@ export default function App() {
               </div>
             </div>
           ))}
+
+          {/* Item Comprar Alianças (Cadeado, sem blur) */}
+           <div className="timeline-item">
+            <div className="timeline-line"></div>
+            <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+               <Lock size={24} style={{ color: '#9CA3AF' }} />
+            </div>
+            <div style={{ marginLeft: '16px' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>Comprar alianças</p>
+            </div>
+          </div>
 
           {/* Items Futuros Ocultos */}
           <div className="timeline-item" onClick={() => !isFutureUnlocked && openModal('future')} style={{ cursor: isFutureUnlocked ? 'default' : 'pointer' }}>
@@ -492,8 +512,61 @@ export default function App() {
               <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>O momento mais esperado.</p>
             </div>
           </div>
+        </div>
+
+        {/* --- Bloco 2: Casamento --- */}
+        <div style={{ marginBottom: '40px', textAlign: 'left' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>Planejamento do Casamento 💒</h2>
+          <p style={{ color: '#6B7280' }}>Nosso sonho virando realidade.</p>
+        </div>
+
+        <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '30px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          
+          {/* Data do Casamento (Oculta) */}
+          <div className="timeline-item">
+            <div className="timeline-line"></div>
+            <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+               <Lock size={24} style={{ color: '#9CA3AF' }} />
+            </div>
+            <div style={{ marginLeft: '16px' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                Definir data do casamento
+                <span 
+                  onClick={() => !isWeddingDateUnlocked && openModal('weddingDate')}
+                  className={isWeddingDateUnlocked ? 'unblur' : 'blur-content'}
+                  style={{ 
+                    backgroundColor: isWeddingDateUnlocked ? '#ECFDF5' : '#F3F4F6', 
+                    padding: '2px 8px', 
+                    borderRadius: '6px', 
+                    fontSize: '0.9rem',
+                    color: isWeddingDateUnlocked ? '#059669' : 'transparent',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  {isWeddingDateUnlocked ? '28/10/2028 ou 29/09/2029' : 'ContentHidden'}
+                  {!isWeddingDateUnlocked && <Lock size={12} style={{ color: '#9CA3AF' }} />}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Itens do Casamento (Cadeado, sem blur) */}
+          {['Casamento Civil', 'Casamento Religioso', 'Casamento fora do país', 'Lua de Mel', 'Apartamento e coisas de casa'].map((item, i, arr) => (
+            <div className="timeline-item" key={i}>
+              <div className="timeline-line" style={{ display: i === arr.length - 1 ? 'none' : 'block' }}></div>
+              <div style={{ zIndex: 1, backgroundColor: 'white', padding: '2px' }}>
+                <Lock size={24} style={{ color: '#9CA3AF' }} />
+              </div>
+              <div style={{ marginLeft: '16px' }}>
+                <p style={{ fontWeight: 600, fontSize: '1.1rem' }}>{item}</p>
+              </div>
+            </div>
+          ))}
 
         </div>
+
       </section>
 
     </div>
