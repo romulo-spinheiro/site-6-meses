@@ -454,7 +454,7 @@ export default function App() {
         
         {/* --- Bloco 1: Noivado --- */}
         <div style={{ marginBottom: '40px', textAlign: 'left' }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>O pedido de Noivado 💍</h2>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>O pedido de noivado 💍</h2>
           <p style={{ color: '#6B7280' }}>Acompanhe o status do nosso próximo grande passo.</p>
         </div>
 
