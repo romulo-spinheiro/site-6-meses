@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Lock, CheckCircle, Circle, ChevronDown, Plane, Plus, Check } from 'lucide-react';
+import { Heart, Lock, CheckCircle, Circle, ChevronDown, Plane, Plus, Check, Hand } from 'lucide-react';
 
 // --- SUAS FOTOS AQUI ---
 const INITIAL_DATA = {
@@ -170,17 +170,44 @@ const PasswordModal = ({ isOpen, onClose, onSuccess, requiredPassword, hint }) =
   );
 };
 
+// Modal de Alerta Simples (Novo)
+const AlertModal = ({ isOpen, onClose, message }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        style={{ backgroundColor: 'white', padding: '30px', borderRadius: '24px', width: '100%', maxWidth: '350px', textAlign: 'center', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+      >
+        <Lock size={32} style={{ color: '#ec4899', margin: '0 auto 16px' }} />
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '8px' }}>Calma, meu amor! ✋</h3>
+        <p style={{ fontSize: '0.95rem', color: '#4B5563', marginBottom: '20px', lineHeight: '1.5' }}>{message}</p>
+        
+        <button 
+          onClick={onClose}
+          style={{ width: '100%', padding: '12px', borderRadius: '12px', border: 'none', backgroundColor: '#ec4899', color: 'white', fontWeight: 600, cursor: 'pointer' }}
+        >
+          Entendi, vou esperar 🥰
+        </button>
+      </motion.div>
+    </div>
+  );
+};
+
 export default function App() {
   const images = INITIAL_DATA;
   
-  // Estados de Senhas
+  // Estados de Senhas e Modais
   const [isDateUnlocked, setIsDateUnlocked] = useState(false);
   const [isWeddingDateUnlocked, setIsWeddingDateUnlocked] = useState(false); 
   const [isFutureUnlocked, setIsFutureUnlocked] = useState(false);
-  const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
-
-  // Estados de Lua de Mel
   const [isHoneymoonOpen, setIsHoneymoonOpen] = useState(false);
+  
+  const [modalConfig, setModalConfig] = useState({ isOpen: false, type: null });
+  const [isAlertOpen, setIsAlertOpen] = useState(false); // Estado para o alerta do botão
+
   const [honeymoonOptions, setHoneymoonOptions] = useState(() => {
     const saved = localStorage.getItem('honeymoonOptions');
     return saved ? JSON.parse(saved) : ['África', 'Europa', 'Disney', 'Ásia'];
@@ -246,6 +273,12 @@ export default function App() {
         .honeymoon-option { cursor: pointer; transition: background 0.2s; border-radius: 8px; }
         .honeymoon-option:hover { background-color: #F9FAFB; }
         
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
         @media (min-width: 768px) {
           h1 { font-size: 4.5rem !important; }
           h2 { font-size: 3.5rem !important; }
@@ -253,12 +286,19 @@ export default function App() {
         }
       `}</style>
 
+      {/* Modais */}
       <PasswordModal 
         isOpen={modalConfig.isOpen} 
         onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
         onSuccess={handleModalSuccess}
         requiredPassword={getPassword(modalConfig.type)}
         hint={modalConfig.type === 'future' ? 'Dica: A pergunta mais importante...' : 'Dica: O que eu sinto por você?'}
+      />
+
+      <AlertModal 
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        message="As etapas anteriores ainda não foram desbloqueadas! O pedido oficial vem aí. 💍"
       />
 
       {/* --- Seção 1: Hero --- */}
@@ -454,7 +494,7 @@ export default function App() {
         
         {/* --- Bloco 1: Noivado --- */}
         <div style={{ marginBottom: '40px', textAlign: 'left' }}>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>O pedido de noivado 💍</h2>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '10px' }}>O pedido de Noivado 💍</h2>
           <p style={{ color: '#6B7280' }}>Acompanhe o status do nosso próximo grande passo.</p>
         </div>
 
@@ -548,6 +588,32 @@ export default function App() {
               <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>O momento mais esperado.</p>
             </div>
           </div>
+        </div>
+
+        {/* Botão de Aceitar (Bloqueado) */}
+        <div style={{ margin: '40px 0', textAlign: 'center' }}>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsAlertOpen(true)}
+            style={{
+              background: 'linear-gradient(to right, #ec4899, #8b5cf6, #ec4899)',
+              backgroundSize: '200% auto',
+              color: 'white',
+              border: 'none',
+              padding: '16px 32px',
+              borderRadius: '50px',
+              fontSize: '1.1rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(236, 72, 153, 0.4)',
+              width: '100%',
+              maxWidth: '400px',
+              animation: 'gradient 3s ease infinite'
+            }}
+          >
+            Aceitar ser minha noiva?
+          </motion.button>
         </div>
 
         {/* --- Bloco 2: Casamento --- */}
@@ -664,7 +730,7 @@ export default function App() {
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') handleAddHoneymoon();
                                 }}
-                                placeholder="Escreva o nome do lugar." 
+                                placeholder="Escreva e dê enter..." 
                                 style={{ 
                                   border: 'none', 
                                   borderBottom: '1px solid #D1D5DB', 
